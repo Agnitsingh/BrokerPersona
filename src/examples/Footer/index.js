@@ -49,7 +49,7 @@ function Footer({ company, links }) {
         fontSize={size.md}
         px={1.5}
       >
-        &copy;Hackathon {new Date().getFullYear()}, made with
+        &copy;FmtHackathon {new Date().getFullYear()}, made with
         <MDBox fontSize={size.md} color="error" mb={-0.5} mx={0.25}>
           <Icon color="inherit" fontSize="inherit">
             favorite

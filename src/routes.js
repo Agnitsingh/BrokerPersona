@@ -44,11 +44,19 @@ import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import ViewTrades from "layouts/view-trades";
+import OnboardBuyers from "layouts/onboard-buyers";
+import ViewSuppliers from "layouts/view-suppliers";
+import ViewBuyers from "layouts/view-buyers";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+
+// Check if user is authenticated
+const isAuthenticated = () => {
+  return localStorage.getItem('token') !== null;
+};
 
 const routes = [
   {
@@ -66,6 +74,14 @@ const routes = [
     icon: <PersonAddIcon fontSize="small" />,
     route: "/onboard-supplier",
     component: <OnboardSupplier />,
+  },
+  {
+    type: "collapse",
+    name: "Onboard Buyers",
+    key: "onboard-buyers",
+    icon: <Icon fontSize="small">shopping_cart</Icon>,
+    route: "/onboard-buyers",
+    component: <OnboardBuyers />,
   },
   {
     type: "collapse",
@@ -93,11 +109,28 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "View Suppliers",
+    key: "view-suppliers",
+    icon: <Icon fontSize="small">inventory</Icon>,
+    route: "/view-suppliers",
+    component: <ViewSuppliers />,
+  },
+  {
+    type: "collapse",
+    name: "View Buyers",
+    key: "view-buyers",
+    icon: <Icon fontSize="small">people</Icon>,
+    route: "/view-buyers",
+    component: <ViewBuyers />,
+  },
+  {
+    type: "collapse",
     name: "Sign In",
     key: "sign-in",
     icon: <Icon fontSize="small">login</Icon>,
     route: "/authentication/sign-in",
     component: <SignIn />,
+    noAuthenticated: true, // Only show when not authenticated
   },
   {
     type: "collapse",
@@ -106,7 +139,19 @@ const routes = [
     icon: <Icon fontSize="small">assignment</Icon>,
     route: "/authentication/sign-up",
     component: <SignUp />,
+    noAuthenticated: true, // Only show when not authenticated
   },
 ];
 
-export default routes;
+// Filter routes based on authentication status
+const getFilteredRoutes = () => {
+  const auth = isAuthenticated();
+  return routes.filter(route => {
+    if (route.noAuthenticated) {
+      return !auth;
+    }
+    return true;
+  });
+};
+
+export default getFilteredRoutes;

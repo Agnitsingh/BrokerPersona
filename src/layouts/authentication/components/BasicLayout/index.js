@@ -21,25 +21,14 @@ import Grid from "@mui/material/Grid";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
+import MDTypography from "components/MDTypography";
 
 // Material Dashboard 2 React example components
-import DefaultNavbar from "examples/Navbars/DefaultNavbar";
 import PageLayout from "examples/LayoutContainers/PageLayout";
-
-// Authentication pages components
-import Footer from "layouts/authentication/components/Footer";
 
 function BasicLayout({ image, children }) {
   return (
     <PageLayout>
-      <DefaultNavbar
-        action={{
-          type: "external",
-          route: "https://creative-tim.com/product/material-dashboard-react",
-          label: "free download",
-          color: "dark",
-        }}
-      />
       <MDBox
         position="absolute"
         width="100%"
@@ -63,7 +52,32 @@ function BasicLayout({ image, children }) {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer light />
+      <MDBox
+        width="100%"
+        position="absolute"
+        bottom="0"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        bgColor="transparent"
+        py={2}
+      >
+        <MDTypography variant="button" color="white">
+          ©FmtHackathon 2025, made with ❤️ by{" "}
+          <MDTypography
+            component="a"
+            href="#"
+            target="_blank"
+            rel="noreferrer"
+            variant="button"
+            fontWeight="bold"
+            color="white"
+          >
+            404Found
+          </MDTypography>
+        </MDTypography>
+      </MDBox>
     </PageLayout>
   );
 }

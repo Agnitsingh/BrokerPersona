@@ -89,6 +89,7 @@ function Cover() {
       password: formData.password,
       role: role
     };
+
     
     // Call register function from our hook
     const result = await register(userData);

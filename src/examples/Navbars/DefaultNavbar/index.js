@@ -31,7 +31,6 @@ import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 
 // Material Dashboard 2 React example components
-import DefaultNavbarLink from "examples/Navbars/DefaultNavbar/DefaultNavbarLink";
 import DefaultNavbarMobile from "examples/Navbars/DefaultNavbar/DefaultNavbarMobile";
 
 // Material Dashboard 2 React base styles
@@ -114,37 +113,25 @@ function DefaultNavbar({ transparent, light, action }) {
           </MDTypography>
         </MDBox>
         <MDBox color="inherit" display={{ xs: "none", lg: "flex" }} m={0} p={0}>
-          {/* No links here - keeping it clean */}
+          {/* Navigation links removed for simplicity */}
         </MDBox>
-        {action &&
-          (action.type === "internal" ? (
-            <MDBox display={{ xs: "none", lg: "inline-block" }}>
+        {action && (
+          <MDBox display={{ xs: "inline-block", lg: "inline-block" }}>
+            {typeof action === 'object' && action.type ? (
               <MDButton
                 component={Link}
                 to={action.route}
                 variant="gradient"
-                color={action.color ? action.color : "info"}
+                color={action.color || "info"}
                 size="small"
               >
                 {action.label}
               </MDButton>
-            </MDBox>
-          ) : (
-            <MDBox display={{ xs: "none", lg: "inline-block" }}>
-              <MDButton
-                component="a"
-                href={action.route}
-                target="_blank"
-                rel="noreferrer"
-                variant="gradient"
-                color={action.color ? action.color : "info"}
-                size="small"
-                sx={{ mt: -0.3 }}
-              >
-                {action.label}
-              </MDButton>
-            </MDBox>
-          ))}
+            ) : (
+              action
+            )}
+          </MDBox>
+        )}
         <MDBox
           display={{ xs: "inline-block", lg: "none" }}
           lineHeight={0}
@@ -190,6 +177,7 @@ DefaultNavbar.propTypes = {
       ]),
       label: PropTypes.string.isRequired,
     }),
+    PropTypes.node,
   ]),
 };
 

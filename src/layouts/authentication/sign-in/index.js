@@ -14,21 +14,18 @@ Coded by www.creative-tim.com
 */
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 // react-router-dom components
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
-import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Grid";
 import MuiLink from "@mui/material/Link";
 
 // @mui icons
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import GoogleIcon from "@mui/icons-material/Google";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -43,61 +40,50 @@ import BasicLayout from "layouts/authentication/components/BasicLayout";
 // Images
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
 
-// Custom hooks
-import { useAuth } from "hooks/useAuth";
+// API service
+import api from "services/api";
 
-function Basic() {
+function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  
   const navigate = useNavigate();
-  const { login, isLoading, error } = useAuth();
-  
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    rememberMe: false
-  });
-  
-  const [formError, setFormError] = useState("");
 
-  const handleChange = (e) => {
-    const { name, value, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: name === "rememberMe" ? checked : value
-    });
-  };
-  
-  const toggleRememberMe = () => {
-    setFormData({
-      ...formData,
-      rememberMe: !formData.rememberMe
-    });
-  };
+  const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormError("");
+    setError("");
+    setIsLoading(true);
     
-    // Validate form
-    if (!formData.email || !formData.password) {
-      setFormError("Email and password are required");
-      return;
-    }
-    
-    // Prepare data for API
-    const credentials = {
-      email: formData.email,
-      password: formData.password
-    };
-    
-    // Call login function from our hook
-    const result = await login(credentials);
-    
-    if (result.success) {
-      // Redirect to dashboard on success
-      navigate("/dashboard");
-    } else {
-      // Display error message
-      setFormError(result.error);
+    try {
+      const response = await api.post("/auth/login", { email, password });
+      
+      // Store the token in localStorage
+      console.log(response.data.user.role)
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userRole", response.data.user.role);
+      
+      // Redirect based on user role
+      const userRole = response.data.user.role;
+      
+      if (userRole === "broker") {
+        navigate("/trade-offers");
+      } else if (userRole === "financer") {
+        navigate("/onboard-buyers");
+      } else {
+        // Default redirect to dashboard for other roles
+        navigate("/dashboard");
+      }
+      
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.response?.data?.message || "Invalid email or password");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -118,81 +104,76 @@ function Basic() {
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
             Sign in
           </MDTypography>
-          <Grid container spacing={3} justifyContent="center" sx={{ mt: 1, mb: 2 }}>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <FacebookIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <GitHubIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <GoogleIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-          </Grid>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" role="form" onSubmit={handleSubmit}>
-            {(formError || error) && (
-              <MDBox mb={2}>
-                <MDAlert color="error" dismissible>
-                  {formError || error}
-                </MDAlert>
-              </MDBox>
-            )}
-            
+          {error && (
             <MDBox mb={2}>
-              <MDInput 
-                type="email" 
-                label="Email" 
-                fullWidth 
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
+              <MDAlert color="error" dismissible>
+                {error}
+              </MDAlert>
+            </MDBox>
+          )}
+          <MDBox component="form" role="form" onSubmit={handleSubmit}>
+            <MDBox mb={2}>
+              <MDInput
+                type="email"
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                fullWidth
                 required
+                InputProps={{
+                  startAdornment: <EmailIcon position="start" sx={{ mr: 1, color: "text.secondary" }} />,
+                }}
               />
             </MDBox>
             <MDBox mb={2}>
-              <MDInput 
-                type="password" 
-                label="Password" 
-                fullWidth 
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
+              <MDInput
+                type="password"
+                label="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                fullWidth
                 required
+                InputProps={{
+                  startAdornment: <LockIcon position="start" sx={{ mr: 1, color: "text.secondary" }} />,
+                }}
               />
             </MDBox>
             <MDBox display="flex" alignItems="center" ml={-1}>
-              <Switch 
-                checked={formData.rememberMe} 
-                onChange={handleChange}
-                name="rememberMe"
-              />
-              <MDTypography
-                variant="button"
-                fontWeight="regular"
-                color="text"
-                onClick={toggleRememberMe}
-                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
+              <MDBox
+                component="label"
+                htmlFor="remember-me"
+                display="flex"
+                alignItems="center"
+                sx={{ cursor: "pointer" }}
               >
-                &nbsp;&nbsp;Remember me
-              </MDTypography>
+                <input
+                  type="checkbox"
+                  id="remember-me"
+                  checked={rememberMe}
+                  onChange={handleSetRememberMe}
+                  style={{ marginRight: "8px" }}
+                />
+                <MDTypography
+                  variant="button"
+                  fontWeight="regular"
+                  color="text"
+                  sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
+                >
+                  &nbsp;&nbsp;Remember me
+                </MDTypography>
+              </MDBox>
             </MDBox>
             <MDBox mt={4} mb={1}>
-              <MDButton 
-                variant="gradient" 
-                color="info" 
+              <MDButton
+                variant="gradient"
+                color="info"
                 fullWidth
                 type="submit"
                 disabled={isLoading}
               >
-                {isLoading ? "Signing In..." : "Sign In"}
+                {isLoading ? "Signing in..." : "Sign in"}
               </MDButton>
             </MDBox>
             <MDBox mt={3} mb={1} textAlign="center">
@@ -217,4 +198,4 @@ function Basic() {
   );
 }
 
-export default Basic;
+export default SignIn;

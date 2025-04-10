@@ -44,7 +44,7 @@ import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
 
 // Material Dashboard 2 React routes
-import routes from "routes";
+import getFilteredRoutes from "routes";
 
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
@@ -55,6 +55,9 @@ import brandDark from "assets/images/logo-ct-dark.png";
 
 // Add this import
 import OnboardSupplier from "layouts/onboard-supplier";
+import OnboardBuyers from "layouts/onboard-buyers";
+import ViewSuppliers from "layouts/view-suppliers";
+import ViewBuyers from "layouts/view-buyers";
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
@@ -111,6 +114,8 @@ export default function App() {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
   }, [pathname]);
+
+  const routes = getFilteredRoutes();
 
   const getRoutes = (allRoutes) =>
     allRoutes.map((route) => {
@@ -171,6 +176,9 @@ export default function App() {
         <Routes>
           {getRoutes(routes)}
           <Route path="/onboard-supplier" element={<OnboardSupplier />} />
+          <Route path="/onboard-buyers" element={<OnboardBuyers />} />
+          <Route path="/view-suppliers" element={<ViewSuppliers />} />
+          <Route path="/view-buyers" element={<ViewBuyers />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </ThemeProvider>
@@ -196,6 +204,9 @@ export default function App() {
       <Routes>
         {getRoutes(routes)}
         <Route path="/onboard-supplier" element={<OnboardSupplier />} />
+        <Route path="/onboard-buyers" element={<OnboardBuyers />} />
+        <Route path="/view-suppliers" element={<ViewSuppliers />} />
+        <Route path="/view-buyers" element={<ViewBuyers />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </ThemeProvider>

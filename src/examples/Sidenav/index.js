@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // react-router-dom components
 import { useLocation, NavLink } from "react-router-dom";
@@ -55,6 +55,13 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
+  const [userRole, setUserRole] = useState("");
+
+  useEffect(() => {
+    // Get user role from localStorage
+    const role = localStorage.getItem("userRole");
+    setUserRole(role || "");
+  }, []);
 
   let textColor = "white";
 
@@ -88,8 +95,39 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
 
+  // Filter routes based on user role
+  const filteredRoutes = routes.filter(route => {
+    // Skip routes without a name (like dividers)
+    if (!route.name) return true;
+    
+    // Always show Dashboard
+    if (route.name === "Dashboard") return true;
+    
+    // Always show authentication routes
+    if (route.name === "Sign In" || route.name === "Sign Up") return true;
+    
+    // For Financer, hide Onboard Supplier, View Suppliers, Trade Offers, Notifications, and View Trades
+    if (userRole === "financer" && (
+      route.name === "Onboard Supplier" || 
+      route.name === "View Suppliers" ||
+      route.name === "Trade Offers" ||
+      route.name === "Notifications" ||
+      route.name === "View Trades"
+    )) {
+      return false;
+    }
+    
+    // For Broker, hide Onboard Buyer and View Buyer
+    if (userRole === "broker" && (route.name === "Onboard Buyers" || route.name === "View Buyers")) {
+      return false;
+    }
+    
+    // Show all other routes
+    return true;
+  });
+
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
-  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route }) => {
+  const renderRoutes = filteredRoutes.map(({ type, name, icon, title, noAuthenticated, key, href, route }) => {
     let returnValue;
 
     if (type === "collapse") {
@@ -145,6 +183,12 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     return returnValue;
   });
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    window.location.href = '/authentication/sign-in';
+  };
+
   return (
     <SidenavRoot
       {...rest}
@@ -185,29 +229,16 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       />
       <List>{renderRoutes}</List>
       <MDBox p={2} mt="auto">
-        <MDButton
-          component="a"
-          href="https://www.creative-tim.com/product/material-dashboard-pro-react"
-          target="_blank"
-          rel="noreferrer"
-          variant="gradient"
-          color={sidenavColor}
-          fullWidth
-        >
-          upgrade to pro
-        </MDButton>
-      </MDBox>
-      <MDBox mt="auto">
-        <MDBox m={2}>
+        {localStorage.getItem('token') && (
           <MDButton
             variant="gradient"
             color="error"
             fullWidth
-            onClick={logout}
+            onClick={handleLogout}
           >
-            Logout
+            LOGOUT
           </MDButton>
-        </MDBox>
+        )}
       </MDBox>
     </SidenavRoot>
   );
