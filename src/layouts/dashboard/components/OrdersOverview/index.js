@@ -26,58 +26,48 @@ import TimelineItem from "examples/Timeline/TimelineItem";
 
 function OrdersOverview() {
   return (
-    <Card sx={{ height: "100%" }}>
-      <MDBox pt={3} px={3}>
-        <MDTypography variant="h6" fontWeight="medium">
-          Orders overview
-        </MDTypography>
-        <MDBox mt={0} mb={2}>
-          <MDTypography variant="button" color="text" fontWeight="regular">
-            <MDTypography display="inline" variant="body2" verticalAlign="middle">
-              <Icon sx={{ color: ({ palette: { success } }) => success.main }}>arrow_upward</Icon>
-            </MDTypography>
-            &nbsp;
-            <MDTypography variant="button" color="text" fontWeight="medium">
-              24%
-            </MDTypography>{" "}
-            this month
-          </MDTypography>
-        </MDBox>
-      </MDBox>
-      <MDBox p={2}>
+    <MDBox>
+      <MDTypography variant="h6" color="text">
+        Recent Trade Activity
+      </MDTypography>
+      <MDBox mt={2}>
         <TimelineItem
           color="success"
-          icon="notifications"
-          title="$2400, Design changes"
-          dateTime="22 DEC 7:20 PM"
+          icon="inventory_2"
+          title="Wheat trade offer accepted"
+          dateTime="Just now"
+          description="Supplier Ramesh Kumar accepted your offer for 25 tons of wheat at ₹2,450/ton"
         />
         <TimelineItem
           color="error"
           icon="inventory_2"
-          title="New order #1832412"
-          dateTime="21 DEC 11 PM"
+          title="Rice trade offer declined"
+          dateTime="2 days ago"
+          description="Supplier Suresh Patel declined your offer for 15 tons of rice at ₹3,200/ton"
         />
         <TimelineItem
           color="info"
           icon="shopping_cart"
-          title="Server payments for April"
-          dateTime="21 DEC 9:34 PM"
+          title="New trade offer created"
+          dateTime="3 days ago"
+          description="You created a new trade offer for 30 tons of corn at ₹1,950/ton"
         />
         <TimelineItem
           color="warning"
           icon="payment"
-          title="New card added for order #4395133"
-          dateTime="20 DEC 2:20 AM"
+          title="Payment processed"
+          dateTime="1 week ago"
+          description="Payment of ₹61,250 processed for wheat delivery from Ramesh Kumar"
         />
         <TimelineItem
           color="primary"
-          icon="vpn_key"
-          title="New card added for order #4395133"
-          dateTime="18 DEC 4:54 AM"
-          lastItem
+          icon="person_add"
+          title="New supplier onboarded"
+          dateTime="1 week ago"
+          description="You added Suresh Patel as a new supplier for rice and wheat"
         />
       </MDBox>
-    </Card>
+    </MDBox>
   );
 }
 

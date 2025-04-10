@@ -47,6 +47,9 @@ import {
   setWhiteSidenav,
 } from "context";
 
+// Custom hooks
+import { useAuth } from "hooks/useAuth";
+
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
@@ -62,6 +65,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   }
 
   const closeSidenav = () => setMiniSidenav(dispatch, true);
+
+  const { logout } = useAuth();
 
   useEffect(() => {
     // A function that sets the mini state of the sidenav.
@@ -191,6 +196,18 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         >
           upgrade to pro
         </MDButton>
+      </MDBox>
+      <MDBox mt="auto">
+        <MDBox m={2}>
+          <MDButton
+            variant="gradient"
+            color="error"
+            fullWidth
+            onClick={logout}
+          >
+            Logout
+          </MDButton>
+        </MDBox>
       </MDBox>
     </SidenavRoot>
   );

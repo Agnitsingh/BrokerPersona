@@ -14,6 +14,7 @@ Coded by www.creative-tim.com
 */
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // react-router-dom components
 import { Link } from "react-router-dom";
@@ -34,6 +35,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
+import MDAlert from "components/MDAlert";
 
 // Authentication layout components
 import BasicLayout from "layouts/authentication/components/BasicLayout";
@@ -41,10 +43,63 @@ import BasicLayout from "layouts/authentication/components/BasicLayout";
 // Images
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
 
-function Basic() {
-  const [rememberMe, setRememberMe] = useState(false);
+// Custom hooks
+import { useAuth } from "hooks/useAuth";
 
-  const handleSetRememberMe = () => setRememberMe(!rememberMe);
+function Basic() {
+  const navigate = useNavigate();
+  const { login, isLoading, error } = useAuth();
+  
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    rememberMe: false
+  });
+  
+  const [formError, setFormError] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: name === "rememberMe" ? checked : value
+    });
+  };
+  
+  const toggleRememberMe = () => {
+    setFormData({
+      ...formData,
+      rememberMe: !formData.rememberMe
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError("");
+    
+    // Validate form
+    if (!formData.email || !formData.password) {
+      setFormError("Email and password are required");
+      return;
+    }
+    
+    // Prepare data for API
+    const credentials = {
+      email: formData.email,
+      password: formData.password
+    };
+    
+    // Call login function from our hook
+    const result = await login(credentials);
+    
+    if (result.success) {
+      // Redirect to dashboard on success
+      navigate("/dashboard");
+    } else {
+      // Display error message
+      setFormError(result.error);
+    }
+  };
 
   return (
     <BasicLayout image={bgImage}>
@@ -82,28 +137,62 @@ function Basic() {
           </Grid>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" role="form">
+          <MDBox component="form" role="form" onSubmit={handleSubmit}>
+            {(formError || error) && (
+              <MDBox mb={2}>
+                <MDAlert color="error" dismissible>
+                  {formError || error}
+                </MDAlert>
+              </MDBox>
+            )}
+            
             <MDBox mb={2}>
-              <MDInput type="email" label="Email" fullWidth />
+              <MDInput 
+                type="email" 
+                label="Email" 
+                fullWidth 
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
             </MDBox>
             <MDBox mb={2}>
-              <MDInput type="password" label="Password" fullWidth />
+              <MDInput 
+                type="password" 
+                label="Password" 
+                fullWidth 
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
             </MDBox>
             <MDBox display="flex" alignItems="center" ml={-1}>
-              <Switch checked={rememberMe} onChange={handleSetRememberMe} />
+              <Switch 
+                checked={formData.rememberMe} 
+                onChange={handleChange}
+                name="rememberMe"
+              />
               <MDTypography
                 variant="button"
                 fontWeight="regular"
                 color="text"
-                onClick={handleSetRememberMe}
+                onClick={toggleRememberMe}
                 sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
               >
                 &nbsp;&nbsp;Remember me
               </MDTypography>
             </MDBox>
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth>
-                sign in
+              <MDButton 
+                variant="gradient" 
+                color="info" 
+                fullWidth
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing In..." : "Sign In"}
               </MDButton>
             </MDBox>
             <MDBox mt={3} mb={1} textAlign="center">
