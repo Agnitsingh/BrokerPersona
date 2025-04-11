@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -32,11 +32,26 @@ import DataTable from "examples/Tables/DataTable";
 import data from "layouts/dashboard/components/Projects/data";
 
 function Projects() {
-  const { columns, rows } = data();
+  const { columns, rows, loading } = data();
   const [menu, setMenu] = useState(null);
 
   const openMenu = ({ currentTarget }) => setMenu(currentTarget);
   const closeMenu = () => setMenu(null);
+
+  const handleRefresh = useCallback(() => {
+    window.location.reload();
+    closeMenu();
+  }, []);
+
+  const handleExportCSV = () => {
+    // TODO: Implement CSV export
+    closeMenu();
+  };
+
+  const handlePrint = () => {
+    window.print();
+    closeMenu();
+  };
 
   const renderMenu = (
     <Menu
@@ -53,9 +68,9 @@ function Projects() {
       open={Boolean(menu)}
       onClose={closeMenu}
     >
-      <MenuItem onClick={closeMenu}>Action</MenuItem>
-      <MenuItem onClick={closeMenu}>Another action</MenuItem>
-      <MenuItem onClick={closeMenu}>Something else</MenuItem>
+      <MenuItem onClick={handleRefresh}>Refresh</MenuItem>
+      <MenuItem onClick={handleExportCSV}>Export to CSV</MenuItem>
+      <MenuItem onClick={handlePrint}>Print</MenuItem>
     </Menu>
   );
 
@@ -64,7 +79,7 @@ function Projects() {
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
         <MDBox>
           <MDTypography variant="h6" gutterBottom>
-            Projects
+            Recent Invoices
           </MDTypography>
           <MDBox display="flex" alignItems="center" lineHeight={0}>
             <Icon
@@ -77,7 +92,7 @@ function Projects() {
               done
             </Icon>
             <MDTypography variant="button" fontWeight="regular" color="text">
-              &nbsp;<strong>30 done</strong> this month
+              &nbsp;<strong>{rows.length} invoices</strong> processed this month
             </MDTypography>
           </MDBox>
         </MDBox>
@@ -89,13 +104,21 @@ function Projects() {
         {renderMenu}
       </MDBox>
       <MDBox>
-        <DataTable
-          table={{ columns, rows }}
-          showTotalEntries={false}
-          isSorted={false}
-          noEndBorder
-          entriesPerPage={false}
-        />
+        {loading ? (
+          <MDBox display="flex" justifyContent="center" p={3}>
+            <MDTypography variant="button" color="text">
+              Loading invoices...
+            </MDTypography>
+          </MDBox>
+        ) : (
+          <DataTable
+            table={{ columns, rows }}
+            showTotalEntries={false}
+            isSorted={false}
+            noEndBorder
+            entriesPerPage={false}
+          />
+        )}
       </MDBox>
     </Card>
   );
