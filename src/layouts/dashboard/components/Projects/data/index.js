@@ -114,41 +114,74 @@ export default function data() {
 
   return {
     columns: [
-      { Header: "Supplier", accessor: "supplier", width: "45%", align: "left" },
-      { Header: "Invoice No", accessor: "invoice_no", width: "20%", align: "left" },
+      { Header: "Supplier", accessor: "supplier", width: "35%", align: "left" },
+      { Header: "Invoice No", accessor: "invoice_no", width: "15%", align: "left" },
       { Header: "Total Amount", accessor: "total_amount", align: "center" },
+      { Header: "Commission", accessor: "commission", align: "center" },
+      { Header: "Commission Status", accessor: "commission_status", align: "center" },
       { Header: "Status", accessor: "status", align: "center" },
     ],
 
-    rows: invoices.map(invoice => ({
-      supplier: (
-        <Company
-          image={getRandomLogo()}
-          name={invoice.supplier.name}
-          address={invoice.supplier.address}
-        />
-      ),
-      invoice_no: (
-        <MDTypography variant="caption" color="text" fontWeight="medium">
-          {invoice.invoice_number}
-        </MDTypography>
-      ),
-      total_amount: (
-        <MDTypography variant="caption" color="text" fontWeight="medium">
-          ₹{invoice.total_amount.toLocaleString('en-IN')}
-        </MDTypography>
-      ),
-      status: (
-        <MDBox width="8rem" textAlign="left">
-          <MDProgress
-            value={calculateStatus(invoice.created_at).value}
-            color={calculateStatus(invoice.created_at).color}
-            variant="gradient"
-            label={false}
+    rows: invoices.map(invoice => {
+      const commission = invoice.total_amount * 0.05;
+      const isReceived = Math.random() < 0.5; // This should come from API, using random for demo
+
+      return {
+        supplier: (
+          <Company
+            image={getRandomLogo()}
+            name={invoice.supplier.name}
+            address={invoice.supplier.address}
           />
-        </MDBox>
-      ),
-    })),
+        ),
+        invoice_no: (
+          <MDTypography variant="caption" color="text" fontWeight="medium">
+            {invoice.invoice_number}
+          </MDTypography>
+        ),
+        total_amount: (
+          <MDTypography variant="caption" color="text" fontWeight="medium">
+            ₹{invoice.total_amount.toLocaleString('en-IN')}
+          </MDTypography>
+        ),
+        commission: (
+          <MDTypography
+            variant="caption"
+            color={isReceived ? "success" : "text"}
+            fontWeight="medium"
+          >
+            ₹{commission.toLocaleString('en-IN')}
+          </MDTypography>
+        ),
+        commission_status: (
+          <MDBox>
+            <MDTypography
+              variant="caption"
+              color={isReceived ? "success" : "error"}
+              fontWeight="medium"
+              sx={{
+                backgroundColor: isReceived ? "rgba(76, 175, 80, 0.1)" : "rgba(244, 67, 54, 0.1)",
+                padding: "4px 8px",
+                borderRadius: "4px",
+                display: "inline-block"
+              }}
+            >
+              {isReceived ? "RECEIVED" : "DUE"}
+            </MDTypography>
+          </MDBox>
+        ),
+        status: (
+          <MDBox width="8rem" textAlign="left">
+            <MDProgress
+              value={calculateStatus(invoice.created_at).value}
+              color={calculateStatus(invoice.created_at).color}
+              variant="gradient"
+              label={false}
+            />
+          </MDBox>
+        ),
+      };
+    }),
     loading,
   };
 }
